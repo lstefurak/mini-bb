@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Line-budget gate (SPEC.md NF-1): count code lines in src/**/*.rs,
+# Line-budget gate (spec 001 NF-1): count code lines in src/**/*.rs,
 # excluding blank lines and lines whose first non-space chars are `//`.
 # Block comments are banned by CLAUDE.md so this stays honest.
 # Counting stops at `#[cfg(test)]` (NF-4: tests are unbudgeted), so the

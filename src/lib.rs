@@ -1,8 +1,9 @@
-//! mini-bb — an educational trigram code-search engine (see SPEC.md).
+//! mini-bb — an educational trigram code-search engine.
+//! Spec: spec/001-trigram-engine.md; architecture map: docs/architecture.md.
 //!
 //! Pipeline: `ingest` (clone/walk/dedupe) → `index` (trigram posting lists)
 //! → `query` (parse + expand to a trigram plan) → `search` (intersect +
-//! verify). Module layout and budgets are fixed by SPEC.md §6.
+//! verify). Module layout and budgets are fixed by spec 001 §6.
 
 pub mod index;
 pub mod ingest;

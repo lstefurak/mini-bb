@@ -13,7 +13,10 @@ mini-bb index https://github.com/owner/repo -o index.json
 mini-bb search "fn main" -i index.json
 ```
 
-- **[SPEC.md](SPEC.md)** — the spec this project is driven by (start here)
+- **[spec/](spec/README.md)** — the numbered specs this project is driven by
+  (start with [001](spec/001-trigram-engine.md))
+- **[docs/architecture.md](docs/architecture.md)** — how the spec maps to the
+  code: pipeline, module map, invariants
 - **[CLAUDE.md](CLAUDE.md)** — agent/contributor working rules
 - **[Live demo](https://lstefurak.github.io/mini-bb/)** — GitHub Pages frontend
   (`web/`): paste a small public repo URL or load the prebuilt demo index,
@@ -29,4 +32,4 @@ optional-suffix plan the GitHub blog uses as its worked example.
 
 Status: **all milestones (M0–M4) complete**, including stretch goal S-1
 (the `?` / `(a|b)` regex subset). Budget: 490/500 code lines. Remaining
-stretch goals (SPEC.md §8): sparse-gram visualizer, `--json` output, WASM.
+stretch goals (spec 001 §8): sparse-gram visualizer, `--json` output, WASM.

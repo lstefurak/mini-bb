@@ -18,5 +18,5 @@ jobs:
         run: cargo clippy -- -D warnings
       - name: Format
         run: cargo fmt --check
-      - name: Line budget (SPEC.md NF-1)
+      - name: Line budget (spec 001 NF-1)
         run: bash scripts/loc.sh

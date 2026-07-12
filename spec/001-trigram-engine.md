@@ -1,4 +1,9 @@
-# mini-bb — Specification
+# Spec 001 — Trigram search engine
+
+- **Status:** implemented (M0–M4 shipped, including stretch goal S-1)
+- **Scope:** the entire v1 system — CLI indexer, search pipeline, web frontend
+- **See also:** [docs/architecture.md](../docs/architecture.md) for how the
+  implementation realizes this spec
 
 A miniature, educational re-implementation of the core ideas behind **Blackbird**,
 GitHub's code search engine, in **under 500 lines of Rust** (code lines; teaching
