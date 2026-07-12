@@ -6,6 +6,8 @@
 
 pub mod index;
 pub mod ingest;
+pub mod query;
+pub mod search;
 
 // [DERIVE] `derive` asks the compiler to *generate* trait implementations at
 // compile time — Rust's answer to Python decorators / C# attributes, except
