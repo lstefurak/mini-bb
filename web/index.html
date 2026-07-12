@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mini-bb — trigram code search, visualized</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>mini-bb</h1>
+    <p>A miniature <a href="https://github.blog/engineering/the-technology-behind-githubs-new-code-search/">Blackbird</a>:
+      watch a code-search query expand into trigram tokens, gate on posting
+      lists, and get verified against real content.
+      <a href="https://github.com/lstefurak/mini-bb">Source &amp; spec</a>.</p>
+  </header>
+
+  <section class="panel" id="ingest-panel">
+    <h2>1 · Get an index</h2>
+    <div class="row">
+      <input id="repo-url" type="url" placeholder="https://github.com/owner/repo" size="38">
+      <input id="token" type="password" placeholder="token (optional)" size="16"
+             title="GitHub personal access token — raises the 60 req/hour anonymous API limit. Kept in memory only.">
+      <button id="fetch-btn">Fetch &amp; index</button>
+      <button id="demo-btn">Load demo index</button>
+    </div>
+    <p class="hint">Fetching uses the GitHub API anonymously: 60 requests/hour,
+      so keep repos small (≤ 100 files, ≤ 100 KB/file are indexed). The demo
+      index is this repository, prebuilt by the Rust CLI.</p>
+    <p id="status" class="status"></p>
+  </section>
+
+  <section class="panel" id="search-panel" hidden>
+    <h2>2 · Search</h2>
+    <div class="row">
+      <input id="query" type="search" placeholder='bare words and "quoted strings" — ANDed, case-insensitive' size="52">
+      <button id="search-btn">Search</button>
+    </div>
+    <div id="stages"></div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -17,6 +17,8 @@ Educational trigram code-search engine (mini Blackbird) in ≤ 500 lines of Rust
 - `cargo test` — unit + integration tests (golden oracle test is the key check)
 - `cargo clippy -- -D warnings` and `cargo fmt --check` — must be clean
 - `scripts/loc.sh` — line-budget gate; run it after every editing session
+- Regenerate the demo index (delete first — it would otherwise index itself):
+  `rm -f web/demo/index.json && cargo run -- index . -o web/demo/index.json`
 
 ## Hard rules
 

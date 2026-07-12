@@ -15,10 +15,14 @@ mini-bb search "fn main" -i index.json
 
 - **[SPEC.md](SPEC.md)** — the spec this project is driven by (start here)
 - **[CLAUDE.md](CLAUDE.md)** — agent/contributor working rules
-- `web/` — tiny GitHub Pages frontend visualizing query expansion (milestone M3)
+- **[Live demo](https://lstefurak.github.io/mini-bb/)** — GitHub Pages frontend
+  (`web/`): paste a small public repo URL or load the prebuilt demo index,
+  and watch queries expand into trigram tokens, gate on posting lists, and
+  get verified — the pipeline from the blog, visualized.
 
 The source is deliberately over-commented: `// [TAG]` comments contrast Rust
 paradigms (ownership, `Result`, traits, iterators, derive macros…) with their
 Python and C# equivalents, for readers coming from those languages.
 
-Status: **M0 — spec & scaffolding.** See SPEC.md §9 for the milestone plan.
+Status: **M3 — engine + web frontend done.** See SPEC.md §9 for the milestone
+plan; M4 (polish + stretch goals) remains.
