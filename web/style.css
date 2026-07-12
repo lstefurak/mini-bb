@@ -39,6 +39,7 @@ button:hover { border-color: var(--accent); }
 }
 .chip.term { background: var(--term-bg); color: var(--term-fg); }
 .chip.gram { background: var(--gram-bg); color: var(--gram-fg); }
+.chip.variant { background: transparent; border: 1px solid var(--border); }
 .chip.gram b { font-size: .75em; margin-left: .35em; opacity: .75; }
 .expansion { margin: .15rem 0; }
 .warn { color: var(--warn); }

@@ -105,25 +105,36 @@ fn cmd_search(query: &str, index_path: &str, explain: bool) -> mini_bb::Result<(
     if terms.is_empty() {
         return Err("empty query".into());
     }
-    println!("1. terms (AND):      {terms:?}");
+    let shown: Vec<&str> = terms.iter().map(|t| t.raw.as_str()).collect();
+    println!("1. terms (AND):      {shown:?}");
     let plans = mini_bb::query::plan(&terms);
     for p in &plans {
-        if p.scan_all {
-            println!(
-                "2. expand {:12} → shorter than a trigram: full scan!",
-                p.term
-            );
-        } else {
-            println!("2. expand {:12} → {}", p.term, p.grams.join(" "));
-        }
+        let vars: Vec<&str> = p.variants.iter().map(|v| v.literal.as_str()).collect();
+        println!("2. expand {:12} → {}", p.term, vars.join(" ∨ "));
     }
-    print!("3. plan: AND(");
-    let sizes: Vec<String> = plans
-        .iter()
-        .flat_map(|p| &p.grams)
-        .map(|g| format!("{g}[{}]", idx.grams.get(g).map_or(0, Vec::len)))
-        .collect();
-    println!("{}) — [n] = posting-list length", sizes.join(" "));
+    for p in &plans {
+        let sides: Vec<String> = p
+            .variants
+            .iter()
+            .map(|v| {
+                if v.scan_all {
+                    format!("{:?} shorter than a trigram: full scan!", v.literal)
+                } else {
+                    let sized: Vec<String> = v
+                        .grams
+                        .iter()
+                        .map(|g| format!("{g}[{}]", idx.grams.get(g).map_or(0, Vec::len)))
+                        .collect();
+                    format!("({})", sized.join(" ∧ "))
+                }
+            })
+            .collect();
+        println!(
+            "3. plan for {:9} → {} — [n] = posting-list length",
+            p.term,
+            sides.join(" ∨ ")
+        );
+    }
     let cand = mini_bb::search::candidates(&idx, &plans);
     println!(
         "4. candidates after intersection: {} of {} docs",

@@ -24,5 +24,9 @@ The source is deliberately over-commented: `// [TAG]` comments contrast Rust
 paradigms (ownership, `Result`, traits, iterators, derive macros…) with their
 Python and C# equivalents, for readers coming from those languages.
 
-Status: **M3 — engine + web frontend done.** See SPEC.md §9 for the milestone
-plan; M4 (polish + stretch goals) remains.
+Try the query `arguments?` — it expands to `argument ∨ arguments`, the same
+optional-suffix plan the GitHub blog uses as its worked example.
+
+Status: **all milestones (M0–M4) complete**, including stretch goal S-1
+(the `?` / `(a|b)` regex subset). Budget: 490/500 code lines. Remaining
+stretch goals (SPEC.md §8): sparse-gram visualizer, `--json` output, WASM.

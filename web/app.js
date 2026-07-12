@@ -26,44 +26,79 @@ function trigrams(text) {
 }
 
 // Mirror of query.rs::parse — bare words + "quoted strings", folded.
+// Quoted terms stay fully literal; bare terms get the regex subset.
 function parseQuery(query) {
   const terms = [];
   let cur = "";
   let inQuotes = false;
-  const flush = () => {
-    if (cur) terms.push(cur.toLowerCase());
+  const flush = (quoted) => {
+    if (cur) terms.push({ raw: cur.toLowerCase(), quoted });
     cur = "";
   };
   for (const c of query) {
-    if (c === '"') { inQuotes = !inQuotes; flush(); }
-    else if (/\s/.test(c) && !inQuotes) flush();
+    if (c === '"') { flush(inQuotes); inQuotes = !inQuotes; }
+    else if (/\s/.test(c) && !inQuotes) flush(false);
     else cur += c;
   }
-  flush();
+  flush(inQuotes);
   return terms;
 }
 
-// Mirror of query.rs::plan.
-function plan(terms) {
-  return terms.map((term) => {
-    const grams = trigrams(term);
-    return { term, grams, scanAll: grams.length === 0 };
-  });
+// Mirror of query.rs::expand — the regex subset: `?` (previous char
+// optional), `(a|b)` alternation, `\` escape → all literal variants.
+function expand(raw) {
+  let out = [""];
+  const chars = Array.from(raw);
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (c === "\\") { if (++i < chars.length) out = out.map((v) => v + chars[i]); }
+    else if (c === "(") {
+      let group = "";
+      while (++i < chars.length && chars[i] !== ")") group += chars[i];
+      out = out.flatMap((v) => group.split("|").map((b) => v + b));
+    } else if (c === "?") {
+      out = [...new Set([...out, ...out.map((v) => v.slice(0, -1))])].sort();
+    } else out = out.map((v) => v + c);
+  }
+  return out;
 }
 
-// Mirror of search.rs::candidates — smallest-first sorted intersection.
+// Mirror of query.rs::plan — terms AND, variants OR, trigrams AND.
+function plan(terms) {
+  return terms.map((t) => ({
+    term: t.raw,
+    variants: (t.quoted ? [t.raw] : expand(t.raw)).map((literal) => {
+      const grams = trigrams(literal);
+      return { literal, grams, scanAll: grams.length === 0 };
+    }),
+  }));
+}
+
+// Mirror of search.rs::candidates — AND over terms of term OR-sets.
 function candidates(index, plans) {
-  const lists = [];
-  for (const p of plans)
-    for (const g of p.grams) lists.push(index.grams[g] ?? []);
-  if (lists.length === 0) return index.docs.map((d) => d.id);
-  lists.sort((a, b) => a.length - b.length);
-  let acc = lists[0];
-  for (const l of lists.slice(1)) {
-    acc = intersect(acc, l);
-    if (acc.length === 0) break;
+  let acc = null;
+  for (const p of plans) {
+    const ids = termCandidates(index, p.variants);
+    acc = acc === null ? ids : intersect(acc, ids);
   }
-  return acc;
+  return acc ?? [];
+}
+
+// Mirror of search.rs::term_candidates — union of variant intersections.
+function termCandidates(index, variants) {
+  let ids = [];
+  for (const v of variants) {
+    if (v.scanAll) return index.docs.map((d) => d.id);
+    const lists = v.grams.map((g) => index.grams[g] ?? []);
+    lists.sort((a, b) => a.length - b.length);
+    let vIds = lists[0];
+    for (const l of lists.slice(1)) {
+      vIds = intersect(vIds, l);
+      if (vIds.length === 0) break;
+    }
+    ids = union(ids, vIds);
+  }
+  return ids;
 }
 
 // Mirror of search.rs::intersect — two-pointer merge of sorted ID lists.
@@ -78,19 +113,34 @@ function intersect(a, b) {
   return out;
 }
 
+// Mirror of search.rs::union — same walk, keeping everything once.
+function union(a, b) {
+  const out = [];
+  let i = 0, j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] < b[j]) out.push(a[i++]);
+    else if (a[i] > b[j]) out.push(b[j++]);
+    else { out.push(a[i]); i++; j++; }
+  }
+  return out.concat(a.slice(i), b.slice(j));
+}
+
 // Mirror of search.rs::verify — trigram hits are candidates, not matches.
+// A doc matches when every term has at least one variant literal present.
 function verify(index, plans, ids) {
   const matches = [];
   for (const id of ids) {
     const doc = index.docs[id];
     const folded = doc.content.toLowerCase();
-    if (!plans.every((p) => folded.includes(p.term))) continue;
+    if (!plans.every((p) => p.variants.some((v) => folded.includes(v.literal)))) continue;
     const lines = [];
     const foldedLines = folded.split("\n");
     const origLines = doc.content.split("\n");
     for (const p of plans) {
-      const n = foldedLines.findIndex((l) => l.includes(p.term));
-      if (n >= 0) lines.push({ term: p.term, lineNo: n + 1, text: origLines[n] });
+      for (let n = 0; n < foldedLines.length; n++) {
+        const v = p.variants.find((v) => foldedLines[n].includes(v.literal));
+        if (v) { lines.push({ term: v.literal, lineNo: n + 1, text: origLines[n] }); break; }
+      }
     }
     matches.push({ doc, lines });
   }
@@ -123,21 +173,31 @@ function runSearch() {
   if (terms.length === 0) { el.innerHTML = ""; return; }
   const plans = plan(terms);
 
-  let html = stage("terms (AND)", terms.map((t) => `<span class="chip term">${esc(t)}</span>`).join(" "));
+  let html = stage("terms (AND)", terms.map((t) => `<span class="chip term">${esc(t.raw)}</span>`).join(" "));
 
-  html += stage("expand each term into covering trigrams",
+  html += stage("expand each term into variants (OR), each into covering trigrams",
     plans.map((p) =>
       `<div class="expansion"><span class="chip term">${esc(p.term)}</span> → ` +
-      (p.scanAll
-        ? `<span class="warn">shorter than a trigram — full scan of every doc!</span>`
-        : p.grams.map((g) => `<span class="chip gram">${esc(g)}</span>`).join(" ")) +
+      p.variants.map((v) =>
+        `<span class="chip variant">${esc(v.literal) || "ε"}</span> ` +
+        (v.scanAll
+          ? `<span class="warn">shorter than a trigram — full scan of every doc!</span>`
+          : v.grams.map((g) => `<span class="chip gram">${esc(g)}</span>`).join(" "))
+      ).join(` <span class="dim">∨</span> `) +
       `</div>`).join(""));
 
-  html += stage("plan — AND over posting lists <span class='dim'>(chip badge = list length)</span>",
-    plans.flatMap((p) => p.grams).map((g) => {
-      const n = (INDEX.grams[g] ?? []).length;
-      return `<span class="chip gram">${esc(g)}<b>${n}</b></span>`;
-    }).join(" ∧ ") || `<span class="warn">no trigrams to gate on</span>`);
+  html += stage("plan — AND terms, OR variants, AND posting lists <span class='dim'>(chip badge = list length)</span>",
+    plans.map((p) =>
+      `<div class="expansion">` +
+      p.variants.map((v) =>
+        v.scanAll
+          ? `<span class="warn">full scan</span>`
+          : "( " + v.grams.map((g) => {
+              const n = (INDEX.grams[g] ?? []).length;
+              return `<span class="chip gram">${esc(g)}<b>${n}</b></span>`;
+            }).join(" ∧ ") + " )"
+      ).join(` <span class="dim">∨</span> `) +
+      `</div>`).join(`<div class="dim">∧</div>`));
 
   const cand = candidates(INDEX, plans);
   html += stage("candidates after intersection",

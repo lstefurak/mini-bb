@@ -3,12 +3,15 @@
 //! every file. The naive scanner is the trivially-correct spec; the engine
 //! (trigram gate + verify) must never disagree with it.
 
+use mini_bb::query::TermPlan;
 use mini_bb::{index, ingest, query, search};
 use std::path::Path;
 
-/// The trivially-correct oracle: read every file, keep those whose folded
-/// content contains every folded term.
-fn naive_scan(root: &Path, terms: &[String]) -> Vec<String> {
+/// The trivially-correct oracle: read every file, keep those where every
+/// term has at least one variant literal in the folded content. Variant
+/// expansion is reused from query::plan — the oracle checks the *engine*
+/// (index + intersection + verify), not the parser.
+fn naive_scan(root: &Path, plans: &[TermPlan]) -> Vec<String> {
     let mut hits = Vec::new();
     let mut stack = vec![root.to_path_buf()];
     while let Some(dir) = stack.pop() {
@@ -19,7 +22,8 @@ fn naive_scan(root: &Path, terms: &[String]) -> Vec<String> {
                 continue;
             }
             let content = std::fs::read_to_string(&path).unwrap().to_lowercase();
-            if terms.iter().all(|t| content.contains(t)) {
+            let hit = |p: &TermPlan| p.variants.iter().any(|v| content.contains(&v.literal));
+            if plans.iter().all(hit) {
                 let rel = path.strip_prefix(root).unwrap();
                 hits.push(rel.to_string_lossy().into_owned());
             }
@@ -44,6 +48,9 @@ fn engine_agrees_with_naive_scan_on_fixture() {
         "xy",               // short term → full-scan fallback
         "zzz_not_there",    // no results
         "\"abc then\" bcd", // quoted + bare mix
+        "arguments?",       // the blog's optional-suffix expansion
+        "conf(ig|use)",     // alternation across variants
+        "duplicates? xy?",  // regex subset + full-scan fallback combined
     ];
     for q in queries {
         let terms = query::parse(q);
@@ -54,7 +61,7 @@ fn engine_agrees_with_naive_scan_on_fixture() {
             .flat_map(|m| m.doc.paths.iter().cloned())
             .collect();
         engine.sort();
-        assert_eq!(engine, naive_scan(&root, &terms), "query {q:?} diverged");
+        assert_eq!(engine, naive_scan(&root, &plans), "query {q:?} diverged");
     }
 }
 
