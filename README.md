@@ -15,10 +15,18 @@ mini-bb search "fn main" -i index.json
 
 - **[SPEC.md](SPEC.md)** — the spec this project is driven by (start here)
 - **[CLAUDE.md](CLAUDE.md)** — agent/contributor working rules
-- `web/` — tiny GitHub Pages frontend visualizing query expansion (milestone M3)
+- **[Live demo](https://lstefurak.github.io/mini-bb/)** — GitHub Pages frontend
+  (`web/`): paste a small public repo URL or load the prebuilt demo index,
+  and watch queries expand into trigram tokens, gate on posting lists, and
+  get verified — the pipeline from the blog, visualized.
 
 The source is deliberately over-commented: `// [TAG]` comments contrast Rust
 paradigms (ownership, `Result`, traits, iterators, derive macros…) with their
 Python and C# equivalents, for readers coming from those languages.
 
-Status: **M0 — spec & scaffolding.** See SPEC.md §9 for the milestone plan.
+Try the query `arguments?` — it expands to `argument ∨ arguments`, the same
+optional-suffix plan the GitHub blog uses as its worked example.
+
+Status: **all milestones (M0–M4) complete**, including stretch goal S-1
+(the `?` / `(a|b)` regex subset). Budget: 490/500 code lines. Remaining
+stretch goals (SPEC.md §8): sparse-gram visualizer, `--json` output, WASM.

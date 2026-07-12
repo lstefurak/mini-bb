@@ -70,7 +70,8 @@ scalar values rather than 3 bytes.
   path. GitHub URLs are fetched with `git clone --depth 1` into a temp
   directory via `std::process::Command` (no git library dependency).
 - **FR-2 File filtering.** Only UTF-8 text files ≤ 200 KB are indexed. Binary
-  files (non-UTF-8), oversized files, and anything under `.git/` are skipped.
+  files (non-UTF-8) and oversized files are skipped, as are dot-directories
+  (`.git/`, `.github/`, …) and the build dirs `target/` / `node_modules/`.
   Skips are counted and reported, not errors.
 - **FR-3 Dedupe (content addressing).** Each file's content is hashed
   (FNV-1a 64-bit, implemented inline — ~6 lines, no dependency). Files with
@@ -103,22 +104,29 @@ scalar values rather than 3 bytes.
 
 - **FR-6 Query parsing & expansion.** `mini-bb search <QUERY> [-i index.json]`
   parses the query into terms:
-  - Bare words and `"quoted strings"` are literal terms.
-  - Multiple terms are combined with **AND**.
+  - Bare words and `"quoted strings"` are terms; multiple terms are combined
+    with **AND**.
   - Matching is **case-insensitive** (both index and query are case-folded;
     like Blackbird, correctness comes from the verification pass).
-  - Each term expands to its covering trigram set (all windows of 3 chars).
-    Terms shorter than 3 chars fall back to a full scan of all docs, with a
-    printed warning (a real engine handles this differently; we show why the
-    problem exists).
-- **FR-7 Planning & intersection.** The plan is the AND of every trigram's
-  posting list across all terms. Lists are intersected smallest-first over
-  sorted doc-ID slices (lazy, iterator-based — no set allocation per list).
-  The result is the **candidate set**.
-- **FR-8 Verification.** Every candidate document's content is scanned for
-  each literal term (case-folded `contains`). Only documents containing all
-  terms are matches. This step exists because trigram hits are necessary but
-  not sufficient — the same reason Blackbird verifies.
+  - Bare terms support a tiny regex subset: `?` makes the **previous
+    character** optional and `(a|b|…)` is alternation; `\` escapes the next
+    character. A term expands into one or more literal **variants** combined
+    with **OR** — `arguments?` → `argument ∨ arguments`, reproducing the
+    blog's `/arguments?/` example. Quoted strings are always fully literal.
+  - Each variant expands to its covering trigram set (all windows of 3
+    chars). Variants shorter than 3 chars fall back to a full scan of all
+    docs, with a printed warning (a real engine handles this differently; we
+    show why the problem exists).
+- **FR-7 Planning & intersection.** The plan is
+  `AND over terms ( OR over variants ( AND over that variant's trigram
+  posting lists ) )` — the same AND/OR shape as Blackbird's compiled queries.
+  Sorted doc-ID lists are intersected smallest-first (two-pointer merge, no
+  set allocation) and variant results are unioned. The result is the
+  **candidate set**.
+- **FR-8 Verification.** Every candidate document's content is scanned: a
+  document matches when, for every term, at least one variant literal appears
+  (case-folded `contains`). This step exists because trigram hits are
+  necessary but not sufficient — the same reason Blackbird verifies.
 - **FR-9 Explainable output.** Search output shows the engine's work, in
   order: (1) parsed terms, (2) each term's trigram expansion, (3) the plan
   with each trigram's posting-list length, (4) candidate count before
@@ -182,10 +190,12 @@ macros are Rust's answer to Python decorators / C# attributes.
 
 ## 7. Non-functional requirements
 
-- **NF-1 Line budget.** ≤ 500 code lines across `src/**/*.rs`. A line counts
-  unless it is blank or its first non-whitespace characters are `//`. Only
-  `//` comments are allowed (no `/* */`), so counting stays honest.
-  `scripts/loc.sh` enforces this and CI fails when over budget.
+- **NF-1 Line budget.** ≤ 500 code lines across `src/**/*.rs`. The budget
+  applies to the Rust indexer only — `web/`, `tests/`, and `scripts/` are
+  unbudgeted. A line counts unless it is blank or its first non-whitespace
+  characters are `//`. Only `//` comments are allowed (no `/* */`), so
+  counting stays honest. `scripts/loc.sh` enforces this and CI fails when
+  over budget.
 - **NF-2 Quality gates.** `cargo test`, `cargo clippy -- -D warnings`,
   `cargo fmt --check`, and `scripts/loc.sh` must all pass; CI runs all four.
 - **NF-3 Teaching comments.** Comments carry the pedagogy and are exempt from
@@ -208,9 +218,9 @@ macros are Rust's answer to Python decorators / C# attributes.
 
 Ordered; none may break NF-1.
 
-1. **S-1 Regex subset**: support `?` (optional previous char) and `(a|b)`
-   alternation on literals, so the blog's `/arguments?/` →
-   `arg ∧ rgu ∧ gum ∧ ((ume ∧ ent) ∨ uments)` demo reproduces exactly.
+1. **S-1 Regex subset**: ~~stretch~~ **shipped** — folded into FR-6/FR-7
+   (variant expansion shows the unfactored form:
+   `(…∧ument) ∨ (…∧ments)` rather than Blackbird's prefix-factored plan).
 2. **S-2 Sparse-gram visualizer**: web-only widget showing weighted bigrams
    and covering-gram selection for a typed string (no engine changes).
 3. **S-3 `--json` search output** (FR-9 structure, machine-readable).
