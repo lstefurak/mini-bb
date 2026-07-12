@@ -70,7 +70,8 @@ scalar values rather than 3 bytes.
   path. GitHub URLs are fetched with `git clone --depth 1` into a temp
   directory via `std::process::Command` (no git library dependency).
 - **FR-2 File filtering.** Only UTF-8 text files ≤ 200 KB are indexed. Binary
-  files (non-UTF-8), oversized files, and anything under `.git/` are skipped.
+  files (non-UTF-8) and oversized files are skipped, as are dot-directories
+  (`.git/`, `.github/`, …) and the build dirs `target/` / `node_modules/`.
   Skips are counted and reported, not errors.
 - **FR-3 Dedupe (content addressing).** Each file's content is hashed
   (FNV-1a 64-bit, implemented inline — ~6 lines, no dependency). Files with
@@ -182,10 +183,12 @@ macros are Rust's answer to Python decorators / C# attributes.
 
 ## 7. Non-functional requirements
 
-- **NF-1 Line budget.** ≤ 500 code lines across `src/**/*.rs`. A line counts
-  unless it is blank or its first non-whitespace characters are `//`. Only
-  `//` comments are allowed (no `/* */`), so counting stays honest.
-  `scripts/loc.sh` enforces this and CI fails when over budget.
+- **NF-1 Line budget.** ≤ 500 code lines across `src/**/*.rs`. The budget
+  applies to the Rust indexer only — `web/`, `tests/`, and `scripts/` are
+  unbudgeted. A line counts unless it is blank or its first non-whitespace
+  characters are `//`. Only `//` comments are allowed (no `/* */`), so
+  counting stays honest. `scripts/loc.sh` enforces this and CI fails when
+  over budget.
 - **NF-2 Quality gates.** `cargo test`, `cargo clippy -- -D warnings`,
   `cargo fmt --check`, and `scripts/loc.sh` must all pass; CI runs all four.
 - **NF-3 Teaching comments.** Comments carry the pedagogy and are exempt from
