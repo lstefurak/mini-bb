@@ -19,6 +19,7 @@ or change the spec (in that order of preference).
 |---|---|---|
 | [001](001-trigram-engine.md) | Trigram search engine (CLI + web) | Implemented |
 | [002](002-index-explorer.md) | Index explorer: file tree + inverted-index views | Implemented |
+| [003](003-kafka-pipeline-demo.md) | Kafka pipeline demo: sharded ingest + query fan-out | Implemented |
 
 ## Adding a spec
 
