@@ -8,7 +8,7 @@ use clap::Parser;
 // System.CommandLine (builder pattern). The enum *is* the CLI contract:
 // `--help`, validation, and typed values all fall out of the definition.
 #[derive(Parser)]
-#[command(about = "Educational trigram code search (mini Blackbird) — see SPEC.md")]
+#[command(about = "Educational trigram code search (mini Blackbird) — see spec/")]
 enum Cmd {
     /// Index a public GitHub repo URL or local directory into a JSON file.
     Index {

@@ -1,4 +1,4 @@
-// mini-bb web frontend (SPEC.md WEB-1..WEB-4).
+// mini-bb web frontend (spec 001 WEB-1..WEB-4).
 // This file MIRRORS the Rust engine — src/index.rs, src/query.rs,
 // src/search.rs are the reference implementation. Keep the algorithms in
 // lockstep: same trigram definition, same plan, same verify semantics.
