@@ -25,6 +25,19 @@ header p { color: var(--dim); }
 input, button {
   font: inherit; padding: .4rem .6rem; border-radius: 6px;
   border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  min-width: 0; max-width: 100%;
+}
+/* Inputs flex to fill their row instead of forcing an intrinsic width
+   (fixed size="" attributes overflowed the panel on narrow screens). */
+#repo-url { flex: 999 1 14rem; }
+#token { flex: 1 1 8rem; }
+#query { flex: 1 1 14rem; }
+button { flex: 0 0 auto; }
+@media (max-width: 480px) {
+  .row { flex-direction: column; align-items: stretch; }
+  /* Reset flex (IDs to out-rank the row-layout rules above): in a column
+     the flex-basis would set *height*, not width. */
+  #repo-url, #token, #query, .row input, .row button { width: 100%; flex: 0 0 auto; }
 }
 input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 button { cursor: pointer; background: var(--panel); font-weight: 600; }
@@ -45,7 +58,8 @@ button:hover { border-color: var(--accent); }
 .warn { color: var(--warn); }
 .dim { color: var(--dim); font-weight: normal; }
 .match { margin: .7rem 0; }
-.paths { font-family: ui-monospace, monospace; font-weight: 600; font-size: .9rem; }
+.paths { font-family: ui-monospace, monospace; font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
+.status { overflow-wrap: anywhere; }
 .match pre {
   margin: .15rem 0 0; padding: .3rem .6rem; overflow-x: auto;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
