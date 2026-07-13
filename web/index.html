@@ -40,6 +40,32 @@
     <div id="stages"></div>
   </section>
 
+  <section class="panel" id="explore-panel" hidden>
+    <h2>3 · Explore the index</h2>
+    <div class="row tabs">
+      <button id="tab-files" class="tab active">Files</button>
+      <button id="tab-grams" class="tab">Inverted index</button>
+    </div>
+    <div id="view-files"></div>
+    <div id="view-grams" hidden>
+      <p id="gram-stats" class="hint"></p>
+      <h3>Posting-list size distribution</h3>
+      <p class="hint">Most trigrams appear in a handful of docs; a few "hot"
+        grams appear almost everywhere — the long tail that motivates
+        Blackbird's sparse grams.</p>
+      <div id="exp-hist" class="chart"></div>
+      <h3>Top 30 trigrams by posting-list length</h3>
+      <div id="exp-top" class="chart"></div>
+      <h3>Look up a trigram</h3>
+      <div class="row"><input id="gram-filter" type="search" placeholder="filter trigrams… (space shown as ·)"></div>
+      <div id="gram-list"></div>
+      <div id="gram-detail"></div>
+    </div>
+  </section>
+  <div id="exp-tooltip" hidden></div>
+
+  <script src="vendor/d3.v7.min.js"></script>
   <script src="app.js"></script>
+  <script src="explorer.js"></script>
 </body>
 </html>
