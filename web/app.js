@@ -290,6 +290,8 @@ function setIndex(index, label) {
   const grams = Object.keys(index.grams).length;
   status(`indexed ${label}: ${index.docs.length} docs, ${grams} distinct trigrams — search away`);
   $("search-panel").hidden = false;
+  // WEB-6 (spec 002): the explorer is a separate, view-only module.
+  if (window.renderExplorer) window.renderExplorer(index);
   $("query").focus();
   runSearch();
 }

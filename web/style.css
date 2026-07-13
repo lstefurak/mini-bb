@@ -2,12 +2,14 @@
   --bg: #ffffff; --fg: #1f2328; --dim: #656d76; --panel: #f6f8fa;
   --border: #d0d7de; --accent: #0969da; --gram-bg: #ddf4ff; --gram-fg: #0550ae;
   --term-bg: #fff8c5; --term-fg: #4d2d00; --warn: #cf222e; --mark: #fff8c5;
+  --chart-bar: #0969da; /* validated: L-band, chroma, ≥3:1 on light surface */
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0d1117; --fg: #e6edf3; --dim: #8d96a0; --panel: #161b22;
     --border: #30363d; --accent: #4493f8; --gram-bg: #121d2f; --gram-fg: #79c0ff;
     --term-bg: #3b2e00; --term-fg: #e3b341; --warn: #ff7b72; --mark: #5a4a00;
+    --chart-bar: #4493f8; /* validated: L-band, chroma, ≥3:1 on dark surface */
   }
 }
 * { box-sizing: border-box; }
@@ -66,3 +68,43 @@ button:hover { border-color: var(--accent); }
   font-size: .85rem;
 }
 mark { background: var(--mark); color: inherit; border-radius: 3px; }
+
+/* ------------------------------------------------ index explorer (002) */
+.tabs { margin-bottom: .6rem; }
+.tab { border-radius: 999px; padding: .3rem .9rem; }
+.tab.active { border-color: var(--accent); color: var(--accent); }
+details.tree { margin-left: 1rem; }
+#view-files > details.tree { margin-left: 0; }
+details.tree > summary {
+  cursor: pointer; padding: .12rem .3rem; border-radius: 4px;
+  font-family: ui-monospace, monospace; font-size: .9rem;
+}
+details.tree > summary:hover { background: var(--gram-bg); }
+details.dir > summary { font-weight: 600; }
+.dup { color: var(--accent); font-weight: 700; }
+table.attrs {
+  margin: .3rem 0 .5rem 1.3rem; font-size: .85rem; border-collapse: collapse;
+}
+table.attrs th {
+  text-align: right; color: var(--dim); font-weight: normal;
+  padding: .1rem .6rem .1rem 0; vertical-align: top; white-space: nowrap;
+}
+table.attrs td { padding: .1rem 0; overflow-wrap: anywhere; }
+.chart { max-width: 100%; overflow: hidden; }
+.chart svg { display: block; }
+.axis { color: var(--dim); font-size: 11px; }
+.axis-label { fill: var(--dim); font-size: 11px; text-anchor: middle; }
+.gram-label { fill: var(--fg); font-family: ui-monospace, monospace; font-size: 11px; }
+.bar-value { fill: var(--dim); font-size: 10px; }
+.gram-row:hover rect { opacity: .75; }
+.chip.path { background: var(--panel); border: 1px solid var(--border); margin: .1rem; }
+.chip.clickable { cursor: pointer; }
+.chip.clickable:hover { border: 1px solid var(--accent); }
+#gram-list { margin-top: .5rem; }
+#gram-detail { margin-top: .5rem; }
+#exp-tooltip {
+  position: absolute; z-index: 10; max-width: 22rem; pointer-events: none;
+  background: var(--fg); color: var(--bg); padding: .3rem .55rem;
+  border-radius: 6px; font-size: .82rem;
+}
+#exp-tooltip code { font-family: ui-monospace, monospace; }
