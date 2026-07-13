@@ -62,10 +62,32 @@
       <div id="gram-detail"></div>
     </div>
   </section>
+  <section class="panel" id="pipeline-panel">
+    <h2>4 · Distributed pipeline — Blackbird's Kafka</h2>
+    <p class="hint">How the real system scales: pushes become <b>Kafka
+      messages</b>; a crawler produces one message per document into a topic
+      <b>partitioned by content hash</b>; each shard consumes exactly one
+      partition and builds its own index. Queries never touch Kafka — they
+      <b>fan out synchronously</b> to every shard and merge. Dots below are
+      events from a real broker run of <code>kafka-demo</code> (spec 003).</p>
+    <div class="row">
+      <button id="pipe-replay">▶ Replay recorded run</button>
+      <button id="pipe-live">Connect to local demo</button>
+    </div>
+    <p id="pipe-status" class="status"></p>
+    <div id="pipe-diagram"></div>
+    <div class="row" id="pipe-live-controls" hidden>
+      <button id="pipe-push">Send push event</button>
+      <input id="pipe-query" type="search" placeholder="query the shards…">
+      <button id="pipe-search">Search</button>
+    </div>
+    <p id="pipe-log"></p>
+  </section>
   <div id="exp-tooltip" hidden></div>
 
   <script src="vendor/d3.v7.min.js"></script>
   <script src="app.js"></script>
   <script src="explorer.js"></script>
+  <script src="pipeline.js"></script>
 </body>
 </html>

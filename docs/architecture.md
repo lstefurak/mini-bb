@@ -47,6 +47,8 @@ of `index.rs`/`query.rs`/`search.rs` — see [Mirror contract](#the-mirror-contr
 | [web/app.js](../web/app.js) | JS mirror of the engine + GitHub-API ingest + visualization | WEB-1..WEB-4 | mirrors named after their Rust counterparts |
 | [web/explorer.js](../web/explorer.js) | Index explorer: file tree + inverted-index views (read-only over FR-5 JSON; *not* part of the mirror) | WEB-6..WEB-8 (spec 002) | `renderExplorer`, `buildTree`, `renderFiles`, `renderGrams` |
 | [web/vendor/d3.v7.min.js](../web/vendor/) | Vendored D3 (single file, no build step) | WEB-9 (spec 002) | — |
+| [kafka-demo/src/main.rs](../kafka-demo/src/main.rs) | Distributed demo: Kafka-partitioned ingest, per-partition shard indices, HTTP query fan-out, SSE events (own 300-line budget) | DEMO-1..6 (spec 003) | `crawler`, `shard_consumer`, `fan_out`, `serve` |
+| [web/pipeline.js](../web/pipeline.js) | Animated pipeline diagram; replays `web/demo/kafka-events.jsonl` or connects live to a local kafka-demo | WEB-10..11 (spec 003) | `handle`, `replay`, `connectLive` |
 | [.github/workflows/pages.yml](../.github/workflows/pages.yml) | Pages deploy of `web/` on push to main | WEB-5 | — |
 | [scripts/loc.sh](../scripts/loc.sh) | Line-budget gate | NF-1 | — |
 | [tests/golden.rs](../tests/golden.rs) | Golden oracle: engine ≡ naive scan | NF-4 | `naive_scan` |
@@ -126,6 +128,20 @@ same file — checking that one query by hand is the fastest drift test.
 | clippy `-D warnings`, rustfmt clean (NF-2) | CI |
 | Deps fixed to clap/serde/serde_json | spec 001 §6; adding one = spec change |
 | Clarity over performance | it's a teaching codebase — resist cleverness |
+
+## The distributed demo (spec 003)
+
+`kafka-demo` reuses the engine above as a library and distributes it the way
+Blackbird does: a push event on the `pushes` topic wakes a crawler
+(`ingest::ingest`), which produces one message per doc to the `docs` topic —
+partition chosen by `fnv1a(content) % 3`, the content-addressed sharding
+trick again. Shard *i* consumes only partition *i* and builds a private
+`Index` with `index::build`. Queries skip Kafka entirely: `fan_out` plans
+once (`query::plan`) and runs `search::candidates` + `verify` against every
+shard, merging the results. The invariant worth protecting:
+**fan-out-merged results must equal a monolithic index of the same tree** —
+`kafka-demo/tests/distributed.rs` asserts it against a real broker
+(self-skips without `KAFKA_BROKER`).
 
 ## Extending the system
 
