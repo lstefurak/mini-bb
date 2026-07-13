@@ -3,6 +3,7 @@
   --border: #d0d7de; --accent: #0969da; --gram-bg: #ddf4ff; --gram-fg: #0550ae;
   --term-bg: #fff8c5; --term-fg: #4d2d00; --warn: #cf222e; --mark: #fff8c5;
   --chart-bar: #0969da; /* validated: L-band, chroma, ≥3:1 on light surface */
+  --chart-query: #9a6700; /* validated pair with --chart-bar (CVD ΔE > 100) */
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -10,9 +11,11 @@
     --border: #30363d; --accent: #4493f8; --gram-bg: #121d2f; --gram-fg: #79c0ff;
     --term-bg: #3b2e00; --term-fg: #e3b341; --warn: #ff7b72; --mark: #5a4a00;
     --chart-bar: #4493f8; /* validated: L-band, chroma, ≥3:1 on dark surface */
+    --chart-query: #bf8700; /* validated pair with --chart-bar (CVD ΔE > 100) */
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0 auto; padding: 1.5rem 1rem 4rem; max-width: 60rem;
   font: 16px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--fg);
@@ -108,3 +111,12 @@ table.attrs td { padding: .1rem 0; overflow-wrap: anywhere; }
   border-radius: 6px; font-size: .82rem;
 }
 #exp-tooltip code { font-family: ui-monospace, monospace; }
+
+/* ------------------------------------------------ kafka pipeline (003) */
+#pipe-diagram svg { width: 100%; height: auto; display: block; }
+.pipe-node { fill: var(--bg); stroke: var(--border); stroke-width: 1.2; }
+.pipe-shard { stroke: var(--chart-bar); }
+.pipe-edge { stroke: var(--border); stroke-width: 1.2; }
+.pipe-label { fill: var(--fg); font-size: 13px; font-weight: 600; }
+.pipe-meta { fill: var(--dim); font-size: 11px; font-family: ui-monospace, monospace; }
+#pipe-log { overflow-wrap: anywhere; }
