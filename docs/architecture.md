@@ -45,6 +45,8 @@ of `index.rs`/`query.rs`/`search.rs` — see [Mirror contract](#the-mirror-contr
 | [src/search.rs](../src/search.rs) | Plan execution: intersect/union posting lists, verify, snippets | FR-7, FR-8, FR-9 | `candidates`, `term_candidates`, `intersect`, `union`, `verify` |
 | [src/main.rs](../src/main.rs) | CLI (clap derive) and all output formatting | FR-1, FR-6, FR-9, NF-5 | `cmd_index`, `cmd_search`, `highlight` |
 | [web/app.js](../web/app.js) | JS mirror of the engine + GitHub-API ingest + visualization | WEB-1..WEB-4 | mirrors named after their Rust counterparts |
+| [web/explorer.js](../web/explorer.js) | Index explorer: file tree + inverted-index views (read-only over FR-5 JSON; *not* part of the mirror) | WEB-6..WEB-8 (spec 002) | `renderExplorer`, `buildTree`, `renderFiles`, `renderGrams` |
+| [web/vendor/d3.v7.min.js](../web/vendor/) | Vendored D3 (single file, no build step) | WEB-9 (spec 002) | — |
 | [.github/workflows/pages.yml](../.github/workflows/pages.yml) | Pages deploy of `web/` on push to main | WEB-5 | — |
 | [scripts/loc.sh](../scripts/loc.sh) | Line-budget gate | NF-1 | — |
 | [tests/golden.rs](../tests/golden.rs) | Golden oracle: engine ≡ naive scan | NF-4 | `naive_scan` |

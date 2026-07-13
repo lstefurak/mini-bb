@@ -18,6 +18,7 @@ or change the spec (in that order of preference).
 | Spec | Title | Status |
 |---|---|---|
 | [001](001-trigram-engine.md) | Trigram search engine (CLI + web) | Implemented |
+| [002](002-index-explorer.md) | Index explorer: file tree + inverted-index views | Implemented |
 
 ## Adding a spec
 
