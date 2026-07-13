@@ -19,8 +19,8 @@
   <section class="panel" id="ingest-panel">
     <h2>1 · Get an index</h2>
     <div class="row">
-      <input id="repo-url" type="url" placeholder="https://github.com/owner/repo" size="38">
-      <input id="token" type="password" placeholder="token (optional)" size="16"
+      <input id="repo-url" type="url" placeholder="https://github.com/owner/repo">
+      <input id="token" type="password" placeholder="token (optional)"
              title="GitHub personal access token — raises the 60 req/hour anonymous API limit. Kept in memory only.">
       <button id="fetch-btn">Fetch &amp; index</button>
       <button id="demo-btn">Load demo index</button>
@@ -34,7 +34,7 @@
   <section class="panel" id="search-panel" hidden>
     <h2>2 · Search</h2>
     <div class="row">
-      <input id="query" type="search" placeholder='words, "quoted strings", arguments?, colo(u|)r — ANDed, case-insensitive' size="52">
+      <input id="query" type="search" placeholder='words, "quoted strings", arguments?, colo(u|)r — ANDed, case-insensitive'>
       <button id="search-btn">Search</button>
     </div>
     <div id="stages"></div>
