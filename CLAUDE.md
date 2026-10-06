@@ -23,6 +23,10 @@ the code; keep both true in the same PR as any structural change.
 - `scripts/loc.sh` — line-budget gate; run it after every editing session
 - Regenerate the demo index (delete first — it would otherwise index itself):
   `rm -f web/demo/index.json && cargo run -- index . -o web/demo/index.json`
+- Kafka demo (spec 003): `docker compose -f kafka-demo/docker-compose.yml up -d`
+  then `cargo run -p kafka-demo` (add `--record web/demo/kafka-events.jsonl`
+  to refresh the web replay bundle); broker-backed test:
+  `KAFKA_BROKER=localhost:9092 cargo test -p kafka-demo`
 
 ## Hard rules
 
@@ -31,7 +35,8 @@ the code; keep both true in the same PR as any structural change.
   (`#[cfg(test)]`, `tests/`) don't count.
 - **Teaching comments:** contrast Rust with Python/C# using tagged comments
   `// [TAG] …` where TAG ∈ OWNERSHIP, BORROWING, LIFETIMES, TRAITS,
-  ENUMS+MATCH, ERRORS, ITERATORS, DERIVE (spec 001 NF-3). Explain the
+  ENUMS+MATCH, ERRORS, ITERATORS, DERIVE, ASYNC (spec 001 NF-3; ASYNC added
+  by spec 003). Explain the
   paradigm, not the line ("what a reader coming from Python/C# would find
   surprising here").
 - No `unwrap()` outside tests; `expect("why this can't fail")` only for real

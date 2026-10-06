@@ -5,7 +5,11 @@ edition = "2021"
 description = "Educational trigram code-search engine (mini Blackbird) in <500 lines of Rust"
 license = "MIT"
 
-# Dependency allowlist is fixed by SPEC.md §6 — adding one requires a spec change.
+[workspace]
+members = ["kafka-demo"]
+
+# Dependency allowlist is fixed by spec 001 §6 — adding one requires a spec
+# change. kafka-demo has its own allowlist (spec 003 NF-6).
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }

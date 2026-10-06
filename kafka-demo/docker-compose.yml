@@ -1,0 +1,13 @@
+# Single-node Redpanda: a Kafka-API-compatible broker in one container,
+# no ZooKeeper/KRaft ceremony — ideal for the spec 003 demo.
+#   docker compose -f kafka-demo/docker-compose.yml up -d
+services:
+  redpanda:
+    image: redpandadata/redpanda:v24.2.18
+    command: >
+      redpanda start --overprovisioned --smp 1 --memory 1G
+      --reserve-memory 0M --node-id 0 --check=false
+      --kafka-addr PLAINTEXT://0.0.0.0:9092
+      --advertise-kafka-addr PLAINTEXT://127.0.0.1:9092
+    ports:
+      - "9092:9092"

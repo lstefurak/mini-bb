@@ -30,6 +30,16 @@ Python and C# equivalents, for readers coming from those languages.
 Try the query `arguments?` — it expands to `argument ∨ arguments`, the same
 optional-suffix plan the GitHub blog uses as its worked example.
 
+There's also a **distributed mode** (`kafka-demo/`, spec 003): real Kafka
+messages carry documents to three shards — each consuming one partition,
+Blackbird-style — and queries fan out synchronously and merge. The live demo
+page replays a recorded run, or connects to your local broker:
+
+```
+docker compose -f kafka-demo/docker-compose.yml up -d
+cargo run -p kafka-demo   # then hit "Connect to local demo" on the site
+```
+
 Status: **all milestones (M0–M4) complete**, including stretch goal S-1
 (the `?` / `(a|b)` regex subset). Budget: 490/500 code lines. Remaining
 stretch goals (spec 001 §8): sparse-gram visualizer, `--json` output, WASM.
